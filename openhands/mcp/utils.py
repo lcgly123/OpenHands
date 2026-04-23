@@ -22,7 +22,7 @@ from openhands.events.observation.observation import Observation
 from openhands.mcp.client import MCPClient
 from openhands.mcp.error_collector import mcp_error_collector
 from openhands.runtime.base import Runtime
-from openhands.utils._redact_compat import (
+from openhands.sdk.utils.redact import (
     redact_text_secrets,
     redact_url_params,
     sanitize_config,
