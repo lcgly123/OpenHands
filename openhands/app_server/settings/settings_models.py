@@ -30,7 +30,7 @@ from openhands.app_server.settings.llm_profiles import LLMProfiles
 from openhands.core.config.llm_config import LLMConfig
 from openhands.core.config.mcp_config import MCPConfig
 from openhands.core.config.utils import load_openhands_config
-from openhands.sdk.settings import ConversationSettings
+from openhands.sdk.settings import AgentSettings, ConversationSettings
 from openhands.utils.jsonpatch_compat import deep_merge
 from openhands.utils.sdk_settings_compat import (
     ACPAgentSettings,
@@ -91,6 +91,23 @@ def _merge_sdk_mcp_configs(
         return None
 
     return SDKMCPConfig.model_validate({'mcpServers': merged_servers})
+
+
+def _load_persisted_agent_settings(data: Any) -> AgentSettings:
+    # SDK v1.19+ loads persisted agent settings into the discriminated-union
+    # models (LLMAgentSettings | ACPAgentSettings). OpenHands still exposes the
+    # legacy AgentSettings shape in its storage/response models, so normalize
+    # the SDK result back through AgentSettings until those types are widened.
+    loaded = AgentSettings.from_persisted(data or {})
+    if isinstance(loaded, AgentSettings):
+        return loaded
+    return AgentSettings.model_validate(
+        loaded.model_dump(mode='json', context={'expose_secrets': True})
+    )
+
+
+def _load_persisted_conversation_settings(data: Any) -> ConversationSettings:
+    return ConversationSettings.from_persisted(data or {})
 
 
 class SandboxGroupingStrategy(str, Enum):
@@ -325,15 +342,21 @@ class Settings(BaseModel):
         # --- Agent settings: coerce SecretStr leaves to plain strings ---
         agent_settings = data.get('agent_settings')
         if isinstance(agent_settings, dict):
-            data['agent_settings'] = _coerce_dict_secrets(agent_settings)
-        elif isinstance(agent_settings, (LLMAgentSettings, ACPAgentSettings)):
+            data['agent_settings'] = _load_persisted_agent_settings(
+                _coerce_dict_secrets(agent_settings)
+            ).model_dump(mode='json', context={'expose_secrets': True})
+        elif isinstance(agent_settings, (LLMAgentSettings, ACPAgentSettings, AgentSettings)):
             data['agent_settings'] = agent_settings.model_dump(
                 mode='json', context={'expose_secrets': True}
             )
 
         # --- Conversation settings: normalize ---
         conversation_settings = data.get('conversation_settings')
-        if isinstance(conversation_settings, ConversationSettings):
+        if isinstance(conversation_settings, dict):
+            data['conversation_settings'] = _load_persisted_conversation_settings(
+                conversation_settings
+            ).model_dump(mode='json')
+        elif isinstance(conversation_settings, ConversationSettings):
             data['conversation_settings'] = conversation_settings.model_dump(
                 mode='json'
             )

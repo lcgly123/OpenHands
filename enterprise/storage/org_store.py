@@ -24,7 +24,11 @@ from storage.org_member import OrgMember
 from storage.user import User
 from storage.user_settings import UserSettings
 
-from openhands.app_server.settings.settings_models import Settings
+from openhands.app_server.settings.settings_models import (
+    Settings,
+    _load_persisted_agent_settings,
+    _load_persisted_conversation_settings,
+)
 from openhands.core.logger import openhands_logger as logger
 from openhands.sdk.settings import AgentSettings, ConversationSettings
 from openhands.utils.jsonpatch_compat import deep_merge
@@ -50,11 +54,11 @@ class OrgStore:
 
     @staticmethod
     def get_agent_settings_from_org(org: Org) -> AgentSettings:
-        return AgentSettings.model_validate(dict(org.agent_settings))
+        return _load_persisted_agent_settings(dict(org.agent_settings))
 
     @staticmethod
     def get_conversation_settings_from_org(org: Org) -> ConversationSettings:
-        return ConversationSettings.model_validate(dict(org.conversation_settings))
+        return _load_persisted_conversation_settings(dict(org.conversation_settings))
 
     @staticmethod
     def sync_agent_settings(org: Org) -> None:
@@ -220,9 +224,18 @@ class OrgStore:
         settings_diff: dict[str, Any],
         settings_type: type[AgentSettings] | type[ConversationSettings],
     ) -> AgentSettings | ConversationSettings:
-        """Deep-merge a sparse settings diff and validate the merged result."""
-        merged_settings = deep_merge(current_settings or {}, settings_diff)
-        return settings_type.model_validate(merged_settings)
+        """Deep-merge a sparse settings diff into persisted settings."""
+        if settings_type is AgentSettings:
+            base_settings = _load_persisted_agent_settings(current_settings)
+            merged_settings = deep_merge(
+                base_settings.model_dump(mode='json', context={'expose_secrets': True}),
+                settings_diff,
+            )
+            return AgentSettings.model_validate(merged_settings)
+
+        base_settings = _load_persisted_conversation_settings(current_settings)
+        merged_settings = deep_merge(base_settings.model_dump(mode='json'), settings_diff)
+        return ConversationSettings.model_validate(merged_settings)
 
     @staticmethod
     async def update_org(

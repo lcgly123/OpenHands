@@ -14,6 +14,10 @@ from storage.org import Org
 from storage.org_member import OrgMember
 from storage.role import Role
 
+from openhands.app_server.settings.settings_models import (
+    _load_persisted_agent_settings,
+    _load_persisted_conversation_settings,
+)
 from openhands.sdk.settings import AgentSettings, ConversationSettings
 from openhands.utils.llm import MASKED_API_KEY, resolve_llm_base_url
 
@@ -185,11 +189,9 @@ class OrgResponse(BaseModel):
             sandbox_base_container_image=org.sandbox_base_container_image,
             sandbox_runtime_container_image=org.sandbox_runtime_container_image,
             org_version=org.org_version if org.org_version is not None else 0,
-            agent_settings=AgentSettings.model_validate(
-                dict(org.agent_settings) if org.agent_settings else {}
-            ),
-            conversation_settings=ConversationSettings.model_validate(
-                dict(org.conversation_settings) if org.conversation_settings else {}
+            agent_settings=_load_persisted_agent_settings(org.agent_settings),
+            conversation_settings=_load_persisted_conversation_settings(
+                org.conversation_settings
             ),
             search_api_key=None,
             sandbox_api_key=None,
@@ -402,14 +404,12 @@ class OrgDefaultsSettingsResponse(BaseModel):
         ``org_member.agent_settings_diff`` and this response always carry
         the same value.
         """
-        agent_settings = AgentSettings.model_validate(
-            dict(org.agent_settings) if org.agent_settings else {}
-        )
+        agent_settings = _load_persisted_agent_settings(org.agent_settings)
         cls._denormalize_llm_for_response(agent_settings)
         return cls(
             agent_settings=agent_settings,
-            conversation_settings=ConversationSettings.model_validate(
-                dict(org.conversation_settings) if org.conversation_settings else {}
+            conversation_settings=_load_persisted_conversation_settings(
+                org.conversation_settings
             ),
             llm_api_key_set=org.llm_api_key is not None,
             search_api_key=cls._mask_key(org.search_api_key),
