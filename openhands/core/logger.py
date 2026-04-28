@@ -257,6 +257,11 @@ class RollingLogger:
 
 class SensitiveDataFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
+        from openhands.utils._redact_compat import (
+            redact_api_key_literals,
+            redact_text_secrets,
+        )
+
         # Gather sensitive values which should not ever appear in the logs.
         sensitive_values = []
         for key, value in os.environ.items():
@@ -296,6 +301,12 @@ class SensitiveDataFilter(logging.Filter):
         for attr in sensitive_patterns:
             pattern = rf"{attr}='?([\w-]+)'?"
             msg = re.sub(pattern, f"{attr}='******'", msg)
+
+        # Apply SDK redaction utils to catch API key literals (e.g. sk_live_,
+        # sk-proj-, ghp_, etc.) and secret dict patterns (e.g. 'GITHUB_TOKEN':
+        # '...') that the pattern-based filter above does not cover.
+        msg = redact_api_key_literals(msg)
+        msg = redact_text_secrets(msg)
 
         # Update the record
         record.msg = msg
@@ -393,16 +404,26 @@ if DEBUG:
 if current_log_level == logging.DEBUG:
     openhands_logger.debug('DEBUG mode enabled.')
 
+_sensitive_data_filter = SensitiveDataFilter(openhands_logger.name)
+
 if LOG_JSON:
-    openhands_logger.addHandler(json_log_handler(current_log_level))
+    _json_handler = json_log_handler(current_log_level)
+    _json_handler.addFilter(_sensitive_data_filter)
+    openhands_logger.addHandler(_json_handler)
     # Configure concurrent.futures logger to use JSON formatting as well
     cf_logger = logging.getLogger('concurrent.futures')
     cf_logger.setLevel(current_log_level)
     cf_logger.addHandler(json_log_handler(current_log_level))
 else:
-    openhands_logger.addHandler(get_console_handler(current_log_level))
+    _console_handler = get_console_handler(current_log_level)
+    _console_handler.addFilter(_sensitive_data_filter)
+    openhands_logger.addHandler(_console_handler)
 
-openhands_logger.addFilter(SensitiveDataFilter(openhands_logger.name))
+# Keep the filter on the logger for records logged directly to openhands_logger,
+# and on the handlers for records propagated from child loggers (e.g.
+# openhands.app_server.*) — Python only checks the originating logger's
+# filters, not ancestor filters, during propagation.
+openhands_logger.addFilter(_sensitive_data_filter)
 openhands_logger.propagate = False
 openhands_logger.debug('Logging initialized')
 

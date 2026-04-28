@@ -107,7 +107,11 @@ from openhands.tools.preset.planning import (
     format_plan_structure,
     get_planning_tools,
 )
-from openhands.utils._redact_compat import sanitize_config
+from openhands.utils._redact_compat import (
+    redact_api_key_literals,
+    redact_text_secrets,
+    sanitize_config,
+)
 from openhands.utils.git import ensure_valid_git_branch_name
 
 _conversation_info_type_adapter = TypeAdapter(list[ConversationInfo | None])
@@ -327,7 +331,7 @@ class LiveStatusAppConversationService(AppConversationServiceBase):
             hook_config_in_request = body_json.get('hook_config')
             _logger.debug(
                 f'Sending StartConversationRequest with hook_config: '
-                f'{hook_config_in_request}'
+                f'{sanitize_config(hook_config_in_request) if isinstance(hook_config_in_request, dict) else hook_config_in_request}'
             )
             headers = (
                 {'X-Session-API-Key': sandbox.session_api_key}
@@ -401,7 +405,7 @@ class LiveStatusAppConversationService(AppConversationServiceBase):
         except Exception as exc:
             _logger.exception('Error starting conversation', stack_info=True)
             task.status = AppConversationStartTaskStatus.ERROR
-            task.detail = str(exc)
+            task.detail = redact_text_secrets(redact_api_key_literals(str(exc)))
             yield task
 
     async def _build_app_conversations(
@@ -1350,7 +1354,7 @@ class LiveStatusAppConversationService(AppConversationServiceBase):
                 )
                 if hook_config:
                     _logger.debug(
-                        f'Successfully loaded hooks: {hook_config.model_dump()}'
+                        f'Successfully loaded hooks: {sanitize_config(hook_config.model_dump())}'
                     )
                 else:
                     _logger.debug('No hooks found in workspace')
