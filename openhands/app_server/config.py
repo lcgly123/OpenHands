@@ -112,6 +112,28 @@ def get_openhands_provider_base_url() -> str | None:
     return os.getenv('OPENHANDS_PROVIDER_BASE_URL') or os.getenv('LLM_BASE_URL') or None
 
 
+def get_critic_server_url() -> str | None:
+    """Return the deployment-level critic server URL, if configured.
+
+    Priority:
+    1. Explicit ``CRITIC_SERVER_URL`` env var.
+    2. Derived from ``OPENHANDS_PROVIDER_BASE_URL`` (append ``/vllm``
+       for the LiteLLM pass-through path).
+    """
+    explicit = os.getenv('CRITIC_SERVER_URL')
+    if explicit:
+        return explicit
+    provider_base = get_openhands_provider_base_url()
+    if provider_base:
+        return provider_base.rstrip('/') + '/vllm'
+    return None
+
+
+def get_critic_model_name() -> str | None:
+    """Return the deployment-level critic model name, if configured."""
+    return os.getenv('CRITIC_MODEL_NAME') or None
+
+
 # The SDK auto-fills this URL as the default for openhands/ and litellm_proxy/
 # models.  Deployments (e.g. staging) may use a different LLM proxy, configured
 # via OPENHANDS_PROVIDER_BASE_URL.
@@ -181,6 +203,14 @@ class AppServerConfig(OpenHandsModel):
     openhands_provider_base_url: str | None = Field(
         default_factory=get_openhands_provider_base_url,
         description='Base URL for the OpenHands provider',
+    )
+    critic_server_url: str | None = Field(
+        default_factory=get_critic_server_url,
+        description='Deployment-level critic server URL.',
+    )
+    critic_model_name: str | None = Field(
+        default_factory=get_critic_model_name,
+        description='Deployment-level critic model name.',
     )
     # Dependency Injection Injectors
     event: EventServiceInjector | None = None
