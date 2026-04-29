@@ -1,6 +1,6 @@
 """SDK compatibility shim for the discriminated-union ``AgentSettings`` rework."""
 
-from typing import Any
+from typing import Any, TypeGuard
 
 try:
     from openhands.sdk.settings import (  # type: ignore[attr-defined]
@@ -42,6 +42,12 @@ except ImportError:
         return AgentSettings.export_schema()
 
 
+def is_llm_agent_settings(
+    settings: AgentSettingsConfig,
+) -> TypeGuard[LLMAgentSettings]:
+    return not isinstance(settings, ACPAgentSettings)
+
+
 __all__ = [
     'ACPAgentSettings',
     'AgentSettingsConfig',
@@ -49,5 +55,6 @@ __all__ = [
     '_HAS_DISCRIMINATED_UNION',
     'default_agent_settings',
     'export_agent_settings_schema',
+    'is_llm_agent_settings',
     'validate_agent_settings',
 ]

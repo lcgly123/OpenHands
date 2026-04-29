@@ -37,6 +37,7 @@ from openhands.utils.sdk_settings_compat import (
     AgentSettingsConfig,
     LLMAgentSettings,
     default_agent_settings,
+    is_llm_agent_settings,
     validate_agent_settings,
 )
 
@@ -345,7 +346,9 @@ class Settings(BaseModel):
             data['agent_settings'] = _load_persisted_agent_settings(
                 _coerce_dict_secrets(agent_settings)
             ).model_dump(mode='json', context={'expose_secrets': True})
-        elif isinstance(agent_settings, (LLMAgentSettings, ACPAgentSettings, AgentSettings)):
+        elif isinstance(
+            agent_settings, (LLMAgentSettings, ACPAgentSettings, AgentSettings)
+        ):
             data['agent_settings'] = agent_settings.model_dump(
                 mode='json', context={'expose_secrets': True}
             )
@@ -431,10 +434,12 @@ class Settings(BaseModel):
 
     def merge_with_config_settings(self) -> 'Settings':
         """Merge config.toml MCP settings with stored SDK agent_settings."""
-        if not isinstance(self.agent_settings, LLMAgentSettings):
+        if not is_llm_agent_settings(self.agent_settings):
             return self
         config_settings = Settings.from_config()
-        if not config_settings:
+        if not config_settings or not is_llm_agent_settings(
+            config_settings.agent_settings
+        ):
             return self
 
         merged_mcp = _merge_sdk_mcp_configs(

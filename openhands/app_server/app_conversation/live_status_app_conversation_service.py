@@ -112,7 +112,7 @@ from openhands.tools.preset.planning import (
 )
 from openhands.utils._redact_compat import sanitize_config
 from openhands.utils.git import ensure_valid_git_branch_name
-from openhands.utils.sdk_settings_compat import ACPAgentSettings
+from openhands.utils.sdk_settings_compat import ACPAgentSettings, is_llm_agent_settings
 
 _conversation_info_type_adapter = TypeAdapter(list[ConversationInfo | None])
 _acp_conversation_info_type_adapter = TypeAdapter(list[ACPConversationInfo | None])
@@ -1061,6 +1061,9 @@ class LiveStatusAppConversationService(AppConversationServiceBase):
             mcp_servers: Dictionary to add servers to
             user: User information containing custom MCP config
         """
+        if not is_llm_agent_settings(user.agent_settings):
+            return
+
         sdk_mcp = user.agent_settings.mcp_config
         if not sdk_mcp or not sdk_mcp.mcpServers:
             return
