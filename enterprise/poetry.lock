@@ -6528,9 +6528,9 @@ memory-profiler = ">=0.61"
 numpy = "*"
 openai = "2.8"
 openhands-aci = "0.3.3"
-openhands-agent-server = {git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "3e5a6e644854c2e485446ad380c8fff3ccf42035", subdirectory = "openhands-agent-server"}
-openhands-sdk = {git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "3e5a6e644854c2e485446ad380c8fff3ccf42035", subdirectory = "openhands-sdk"}
-openhands-tools = {git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "3e5a6e644854c2e485446ad380c8fff3ccf42035", subdirectory = "openhands-tools"}
+openhands-agent-server = "1.19.1"
+openhands-sdk = "1.19.1"
+openhands-tools = "1.19.1"
 opentelemetry-api = ">=1.33.1"
 opentelemetry-exporter-otlp-proto-grpc = ">=1.33.1"
 orjson = ">=3.11.6"
