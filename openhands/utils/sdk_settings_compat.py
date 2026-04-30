@@ -3,18 +3,45 @@
 from typing import Any
 
 try:
+    from pydantic import ValidationError
+
     from openhands.sdk.settings import (  # type: ignore[attr-defined]
         ACPAgentSettings,
         AgentSettingsConfig,
         LLMAgentSettings,
         default_agent_settings,
         export_agent_settings_schema,
-        validate_agent_settings,
+    )
+    from openhands.sdk.settings import (
+        validate_agent_settings as _sdk_validate_agent_settings,
     )
 
     _HAS_DISCRIMINATED_UNION = True
+    try:
+        from openhands.sdk.settings import (
+            OpenHandsAgentSettings as _OpenHandsAgentSettings,  # noqa: F401
+        )
+
+        _HAS_OPENHANDS_AGENT_KIND = True
+    except ImportError:
+        _HAS_OPENHANDS_AGENT_KIND = False
+
+    def validate_agent_settings(data: Any):  # type: ignore[misc]
+        try:
+            return _sdk_validate_agent_settings(data)
+        except ValidationError:
+            if (
+                not _HAS_OPENHANDS_AGENT_KIND
+                and isinstance(data, dict)
+                and data.get('agent_kind') == 'openhands'
+            ):
+                fallback = dict(data)
+                fallback['agent_kind'] = 'llm'
+                return _sdk_validate_agent_settings(fallback)
+            raise
 except ImportError:
     _HAS_DISCRIMINATED_UNION = False
+    _HAS_OPENHANDS_AGENT_KIND = False
     from openhands.sdk.settings import AgentSettings
 
     LLMAgentSettings = AgentSettings  # type: ignore[misc, assignment]
@@ -47,6 +74,7 @@ __all__ = [
     'AgentSettingsConfig',
     'LLMAgentSettings',
     '_HAS_DISCRIMINATED_UNION',
+    '_HAS_OPENHANDS_AGENT_KIND',
     'default_agent_settings',
     'export_agent_settings_schema',
     'validate_agent_settings',

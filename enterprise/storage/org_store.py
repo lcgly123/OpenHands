@@ -27,6 +27,10 @@ from storage.user_settings import UserSettings
 from openhands.app_server.settings.settings_models import Settings
 from openhands.core.logger import openhands_logger as logger
 from openhands.sdk.settings import AgentSettings, ConversationSettings
+from openhands.utils.sdk_settings_compat import (
+    AgentSettingsConfig,
+    validate_agent_settings,
+)
 from openhands.utils.jsonpatch_compat import deep_merge
 from openhands.utils.llm import is_openhands_model
 
@@ -49,8 +53,8 @@ class OrgStore:
     """Store for managing organizations."""
 
     @staticmethod
-    def get_agent_settings_from_org(org: Org) -> AgentSettings:
-        return AgentSettings.model_validate(dict(org.agent_settings))
+    def get_agent_settings_from_org(org: Org) -> AgentSettingsConfig:
+        return validate_agent_settings(dict(org.agent_settings))
 
     @staticmethod
     def get_conversation_settings_from_org(org: Org) -> ConversationSettings:
@@ -219,9 +223,11 @@ class OrgStore:
         current_settings: dict[str, Any],
         settings_diff: dict[str, Any],
         settings_type: type[AgentSettings] | type[ConversationSettings],
-    ) -> AgentSettings | ConversationSettings:
+    ) -> AgentSettingsConfig | ConversationSettings:
         """Deep-merge a sparse settings diff and validate the merged result."""
         merged_settings = deep_merge(current_settings or {}, settings_diff)
+        if settings_type is AgentSettings:
+            return validate_agent_settings(merged_settings)
         return settings_type.model_validate(merged_settings)
 
     @staticmethod

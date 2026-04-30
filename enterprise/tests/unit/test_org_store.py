@@ -146,6 +146,17 @@ async def test_update_org_not_found(async_session_maker):
         assert updated_org is None
 
 
+def test_merge_agent_settings_accepts_openhands_discriminator():
+    result = OrgStore._merge_and_validate_settings(
+        {'agent_kind': 'openhands', 'llm': {'model': 'openhands/claude-3'}},
+        {'llm': {'base_url': 'https://llm.example.com'}},
+        AgentSettings,
+    )
+
+    assert result.agent_kind in {'openhands', 'llm'}
+    assert result.llm.base_url == 'https://llm.example.com'
+
+
 @pytest.mark.asyncio
 async def test_create_org(async_session_maker, mock_litellm_api):
     # Test creating a new org

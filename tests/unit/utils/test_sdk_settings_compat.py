@@ -28,6 +28,11 @@ def test_validate_agent_settings_with_llm_dict():
     assert result is not None
 
 
+def test_validate_agent_settings_accepts_openhands_agent_kind():
+    result = validate_agent_settings({'agent_kind': 'openhands'})
+    assert result.agent_kind in {'openhands', 'llm'}
+
+
 def test_validate_agent_settings_with_acp_kind_raises_or_returns():
     """validate_agent_settings with kind='acp' either returns ACP settings or raises RuntimeError."""
     data = {'kind': 'acp', 'agent_kind': 'acp'}
