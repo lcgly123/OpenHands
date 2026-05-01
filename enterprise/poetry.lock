@@ -6515,8 +6515,8 @@ wsproto = ">=1.2.0"
 [package.source]
 type = "git"
 url = "https://github.com/OpenHands/software-agent-sdk.git"
-reference = "main"
-resolved_reference = "3e5a6e644854c2e485446ad380c8fff3ccf42035"
+reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
+resolved_reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
 subdirectory = "openhands-agent-server"
 
 [[package]]
@@ -6566,9 +6566,9 @@ memory-profiler = ">=0.61"
 numpy = "*"
 openai = "2.8"
 openhands-aci = "0.3.3"
-openhands-agent-server = {git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "main", subdirectory = "openhands-agent-server"}
-openhands-sdk = {git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "main", subdirectory = "openhands-sdk"}
-openhands-tools = {git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "main", subdirectory = "openhands-tools"}
+openhands-agent-server = {git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "9be65c0a8052dc0b870ae4610e74939c82f56fab", subdirectory = "openhands-agent-server"}
+openhands-sdk = {git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "9be65c0a8052dc0b870ae4610e74939c82f56fab", subdirectory = "openhands-sdk"}
+openhands-tools = {git = "https://github.com/OpenHands/software-agent-sdk.git", rev = "9be65c0a8052dc0b870ae4610e74939c82f56fab", subdirectory = "openhands-tools"}
 opentelemetry-api = ">=1.33.1"
 opentelemetry-exporter-otlp-proto-grpc = ">=1.33.1"
 orjson = ">=3.11.6"
@@ -6649,8 +6649,8 @@ boto3 = ["boto3 (>=1.35.0)"]
 [package.source]
 type = "git"
 url = "https://github.com/OpenHands/software-agent-sdk.git"
-reference = "main"
-resolved_reference = "3e5a6e644854c2e485446ad380c8fff3ccf42035"
+reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
+resolved_reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
 subdirectory = "openhands-sdk"
 
 [[package]]
@@ -6677,8 +6677,8 @@ tom-swe = ">=1.0.3"
 [package.source]
 type = "git"
 url = "https://github.com/OpenHands/software-agent-sdk.git"
-reference = "main"
-resolved_reference = "3e5a6e644854c2e485446ad380c8fff3ccf42035"
+reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
+resolved_reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
 subdirectory = "openhands-tools"
 
 [[package]]

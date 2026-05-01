@@ -6237,8 +6237,8 @@ wsproto = ">=1.2.0"
 [package.source]
 type = "git"
 url = "https://github.com/OpenHands/software-agent-sdk.git"
-reference = "main"
-resolved_reference = "3e5a6e644854c2e485446ad380c8fff3ccf42035"
+reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
+resolved_reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
 subdirectory = "openhands-agent-server"
 
 [[package]]
@@ -6272,8 +6272,8 @@ boto3 = ["boto3 (>=1.35.0)"]
 [package.source]
 type = "git"
 url = "https://github.com/OpenHands/software-agent-sdk.git"
-reference = "main"
-resolved_reference = "3e5a6e644854c2e485446ad380c8fff3ccf42035"
+reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
+resolved_reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
 subdirectory = "openhands-sdk"
 
 [[package]]
@@ -6300,8 +6300,8 @@ tom-swe = ">=1.0.3"
 [package.source]
 type = "git"
 url = "https://github.com/OpenHands/software-agent-sdk.git"
-reference = "main"
-resolved_reference = "3e5a6e644854c2e485446ad380c8fff3ccf42035"
+reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
+resolved_reference = "9be65c0a8052dc0b870ae4610e74939c82f56fab"
 subdirectory = "openhands-tools"
 
 [[package]]
@@ -14611,4 +14611,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12,<3.14"
-content-hash = "4038a9ad40e51dc8c4118e534ef3b03ce3eb7a03ce6ead6e5fe8e8d259a19444"
+content-hash = "edc5e8928879e653999d2c10e8fb72d6ab51de80dda9c3208e29c48abf40a6bf"
