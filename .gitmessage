@@ -1,0 +1,47 @@
+# Conventional Commits Specification
+# Format: <type>(<scope>): <short summary>
+# Separate header and body with a blank line
+# Separate body and footer with a blank line
+
+# Allowed Commit Types:
+# feat:     A new feature
+# fix:      A bug fix
+# docs:     Documentation only changes
+# style:    Code formatting, no logic modification
+# refactor: Code refactoring, no bug fix / no new feature
+# perf:     Performance improvement
+# test:     Add or modify test cases
+# chore:    Build, tooling, dependency & routine maintenance
+# ci:       CI/CD workflow and config changes
+# build:    Build system or external dependencies changes
+# revert:   Revert a prior commit
+
+# Scope (optional):
+# Specify business module, component, service or directory
+
+# Short Summary Rules:
+# - Use imperative mood
+# - Max 50 characters
+# - No trailing period
+
+# Body (optional):
+# - Explain the motivation and details of changes
+# - Wrap text at 72 characters per line
+# - Describe what & why, not how
+
+# Footer Section (optional):
+# 1. Issue linkage: Fixes #123 / Closes #456 / Resolves #789
+# 2. Breaking Change: BREAKING CHANGE: <description>
+# 3. Co-author signature for pair programming:
+#    Co-authored-by: Name <email@example.com>
+
+
+# ---------------------- Commit Example ----------------------
+# feat(api): add request rate limiter middleware
+#
+# Prevent excessive requests to protect server stability,
+# support dynamic threshold configuration.
+#
+# Closes #201
+# Co-authored-by: Tom Lee <tom@company.com>
+# ------------------------------------------------------------
